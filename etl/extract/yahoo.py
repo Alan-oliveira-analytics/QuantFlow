@@ -31,7 +31,7 @@ df = df.rename(columns={'Date': 'date', 'Open': 'open', 'High': 'high', 'Low': '
 df.info()
 
 def main():
-    df.to_csv(output_path, index=True)
+    df.to_csv(output_path, index=False)
 
 
 
