@@ -4,7 +4,7 @@ from pathlib import Path
 from config.paths import DATA_DIR
 
 
-output_path = DATA_DIR / 'raw' / 'yfinance_data.csv'
+output_path = DATA_DIR / 'raw' / 'yfinance' / 'yfinance_data.csv'
 
 assets = ['AAPL', 'MSFT', 'NVDA', 'AMZN', 'GOOGL', 'QQQ', 'SPY']
 
@@ -29,7 +29,21 @@ df = extract_yfinance_data(assets, df)
 
 
 def main():
-    df.to_csv(output_path, index=False)
+
+    folder_path = output_path.parent
+    folder_path.mkdir(parents=True, exist_ok=True)
+
+    if output_path.exists():
+        existing_df = pd.read_csv(output_path)
+        existing_df['Date'] = pd.to_datetime(existing_df['Date'], utc=True)
+
+        combined_df = pd.concat([existing_df, df], ignore_index=True)
+        combined_df.drop_duplicates(subset=['Date', 'ticker'], keep='last', inplace=True)
+
+        combined_df.to_csv(output_path, index=False)
+
+    else:
+        df.to_csv(output_path, index=False)
 
 
 

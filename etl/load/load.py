@@ -39,6 +39,12 @@ def load_data(
         schema='raw',
         if_exists='append'):
     
+
+    df.columns = df.columns.str.lower()
+
+    df.columns = df.columns.str.replace(' ', '_')
+
+
     df.to_sql(
         name=table_name,
         con=engine,
@@ -55,6 +61,6 @@ def load_data(
     print(f'Number of records in {table_name}: {len(df_check)}')
 
 
-df = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'yfinance_data.csv')
+df = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'yfinance' / 'yfinance_data.csv')
 
 load_data(df, engine, 'market_data_yahoo')
