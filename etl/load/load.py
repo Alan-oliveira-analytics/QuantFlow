@@ -4,10 +4,9 @@ import os
 from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
+from config.paths import BASE_DIR
 
 
-
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env_path = BASE_DIR / '.env'
 
