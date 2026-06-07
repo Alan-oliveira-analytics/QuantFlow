@@ -784,11 +784,10 @@ wheels = [
 [[package]]
 name = "quant-flow"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "dotenv" },
     { name = "matplotlib" },
-    { name = "numpy" },
     { name = "pandas" },
     { name = "psycopg2" },
     { name = "pyarrow" },
@@ -801,7 +800,6 @@ dependencies = [
 requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "matplotlib", specifier = ">=3.10.9" },
-    { name = "numpy", specifier = ">=2.4.6" },
     { name = "pandas", specifier = ">=3.0.3" },
     { name = "psycopg2", specifier = ">=2.9.12" },
     { name = "pyarrow", specifier = ">=24.0.0" },

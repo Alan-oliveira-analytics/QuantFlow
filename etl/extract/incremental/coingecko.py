@@ -22,8 +22,8 @@ headers = {"x-cg-demo-api-key": api_key}
 # create a variable to store the current year, month, and day
 
 year = datetime.now().year
-month = datetime.now().month
-day = datetime.now().day
+month = datetime.now().strftime('%m')
+day = datetime.now().strftime('%d')
 
 
 # Function to extract data from CoinGecko API and return a DataFrame
