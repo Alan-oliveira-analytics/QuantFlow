@@ -65,13 +65,11 @@ def load_data(df, engine, table_name, schema='raw', if_exists='append'):
 
 df_yfinance = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'yfinance' / 'yfinance_data.csv')
 df_historical_data_btc = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'bitcoin' / 'bitcoin_historical_data.csv')
-df_historical_data_fred = pd.read_parquet(BASE_DIR / 'data' / 'raw' / 'fred' / 'fred_data.parquet', engine='pyarrow')
 
 
 def main():
     load_data(df_yfinance, engine, 'market_data_yahoo')
     load_data(df_historical_data_btc, engine, 'market_data_historical_btc')
-    load_data(df_historical_data_fred, engine, 'market_data_historical_fred')
 
     files = base_btc_path.rglob('*.parquet')
 
