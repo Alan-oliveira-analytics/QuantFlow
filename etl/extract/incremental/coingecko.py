@@ -3,14 +3,24 @@ from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 import os
+import logging
 from datetime import datetime
 import pyarrow
 from config.paths import BASE_DIR
 
 
+# ─── Configuração ────────────────────────────────────────────────────────────
+
 env_path = BASE_DIR / '.env'
 
 load_dotenv(env_path)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+)
+logger = logging.getLogger(__name__)
 
 api_key = os.getenv('API_KEY')
 
@@ -26,6 +36,8 @@ month = datetime.now().strftime('%m')
 day = datetime.now().strftime('%d')
 
 
+# ─── Funções ────────────────────────────────────────────────────────────
+
 # Function to extract data from CoinGecko API and return a DataFrame
 
 def extract_coingecko_data(url, headers) -> pd.DataFrame:
@@ -36,7 +48,7 @@ def extract_coingecko_data(url, headers) -> pd.DataFrame:
         df = pd.DataFrame(data)
 
     else:
-        print(f'Error: {response.status_code} - {response.text}')
+        logger.error(f'Error: {response.status_code} - {response.text}')
         return pd.DataFrame()
 
     return df
@@ -47,12 +59,12 @@ def main():
     df = extract_coingecko_data(url, headers)
 
     if df.empty:
-        print('No data extracted.')
+        logger.warning('No data extracted.')
         return
 
     df['extraction_time'] = pd.Timestamp.now()
 
-    folder_path = BASE_DIR / 'data' / 'raw' / 'bitcoin' / f'year={year}' / f'month={month}'  
+    folder_path = BASE_DIR / 'data' / 'raw' / 'bitcoin' / f'year={year}' / f'month={month}'
 
     folder_path.mkdir(parents=True, exist_ok=True)
 
@@ -72,9 +84,8 @@ def main():
 
     final_df.to_parquet(file_path, index=False, engine='pyarrow')
 
-    print(f'Data extracted and saved to {file_path}')
+    logger.info(f'Data extracted and saved to {file_path}')
 
 
 if __name__ == '__main__':
     main()
-

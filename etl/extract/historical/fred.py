@@ -3,9 +3,21 @@ import pandas as pd
 from dotenv import load_dotenv
 import pyarrow
 import os
+import logging
 from config.paths import BASE_DIR
 
+
+# ─── Configuração ────────────────────────────────────────────────────────────
+
 load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+)
+logger = logging.getLogger(__name__)
+
 
 API_KEY = os.getenv('API_KEY_FRED')
 
@@ -17,9 +29,16 @@ file_path = BASE_DIR / 'data' / 'raw' / 'fred' / 'fred_data.parquet'
 
 series_id = ['FEDFUNDS', 'CPIAUCSL', 'UNRATE', 'GDPC1', 'M2SL', 'DGS10']
 
+
+# ─── Extração ────────────────────────────────────────────────────────────
+
+logger.info('Iniciando a extração histórica do FRED...')
+
 df = pd.DataFrame()
 
 for id in series_id:
+
+    logger.info(f'[{id}] Buscando observações...')
 
     params = {
         'api_key': f'{API_KEY}',
@@ -38,8 +57,14 @@ for id in series_id:
 
     df = pd.concat([df, series_df], ignore_index=True)
 
+    logger.info(f'[{id}] {len(series_df)} observações coletadas.')
+
+
+# ─── Persistência ────────────────────────────────────────────────────────────
 
 folder_path = file_path.parent
 folder_path.mkdir(parents=True, exist_ok=True)
 
 df.to_parquet(file_path, index=False, engine='pyarrow')
+
+logger.info(f'Dados salvos em {file_path} ({len(df)} registros).')

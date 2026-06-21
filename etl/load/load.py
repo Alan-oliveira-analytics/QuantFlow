@@ -2,10 +2,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.dialects.postgresql import insert
 from urllib.parse import quote_plus
 import os
+import logging
 from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 from config.paths import BASE_DIR, DATA_DIR
+
+
+# ─── Configuração ────────────────────────────────────────────────────────────
 
 pd.set_option('display.max_columns', None)
 
@@ -16,7 +20,15 @@ env_path = BASE_DIR / '.env'
 
 load_dotenv(env_path)
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+)
+logger = logging.getLogger(__name__)
 
+
+# ─── Conexão com banco ────────────────────────────────────────────────────────────
 
 user = os.getenv('POSTGRES_USER')
 password = os.getenv('POSTGRES_PASSWORD')
@@ -27,7 +39,7 @@ host = 'localhost'
 
 def get_engine():
 
-    print('Creating database engine...')
+    logger.info('Creating database engine...')
 
     return create_engine(
         f'postgresql+psycopg2://{user}:{quote_plus(password)}@{host}:5433/{database}'
@@ -36,6 +48,9 @@ def get_engine():
 
 engine = get_engine()
 
+
+# ─── Funções ────────────────────────────────────────────────────────────
+
 def upsert_on_conflict_do_nothing(table, conn, keys, data_iter):
     data = [dict(zip(keys, row)) for row in data_iter]
     stmt = insert(table.table).values(data).on_conflict_do_nothing()
@@ -43,7 +58,7 @@ def upsert_on_conflict_do_nothing(table, conn, keys, data_iter):
 
 
 def load_data(df, engine, table_name, schema='raw', if_exists='append'):
-    
+
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.replace(' ', '_')
 
@@ -56,11 +71,11 @@ def load_data(df, engine, table_name, schema='raw', if_exists='append'):
         method=upsert_on_conflict_do_nothing
     )
 
-    print('Data loading completed successfully.')
+    logger.info('Data loading completed successfully.')
 
     df_check = pd.read_sql(f'SELECT * FROM raw.{table_name}', con=engine)
 
-    print(f'Number of records in {table_name}: {len(df_check)}')
+    logger.info(f'Number of records in {table_name}: {len(df_check)}')
 
 
 df_yfinance = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'yfinance' / 'yfinance_data.csv')

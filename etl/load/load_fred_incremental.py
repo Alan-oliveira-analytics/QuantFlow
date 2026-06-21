@@ -41,6 +41,7 @@ def insert_new_records(df: pd.DataFrame, engine: Engine) -> int:
     if df.empty:
         return 0
     
+    
     # ─── Diagnóstico 1: valida conexão e search_path ──────────────────
     with engine.connect() as conn:
         search_path = conn.execute(text("SHOW search_path")).scalar()
@@ -64,8 +65,10 @@ def insert_new_records(df: pd.DataFrame, engine: Engine) -> int:
         logger.info(f'schema raw existe:   {schema_exists}')
         logger.info(f'tabela existe em raw: {table_exists}')
 
+
     # ─── Diagnóstico 2: valida colunas do DataFrame vs tabela ─────────
     logger.info(f'Colunas do DataFrame: {df.dtypes.to_dict()}')
+
 
 
     # ─── Diagnóstico 3: tenta inserir e captura erro explícito ────────
