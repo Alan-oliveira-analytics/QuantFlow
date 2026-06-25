@@ -1,13 +1,7 @@
-from urllib.parse import quote_plus
-
 import requests
 import pandas as pd
-from dotenv import load_dotenv
-import pyarrow
 import os
 import logging
-from datetime import datetime
-from config.paths import BASE_DIR
 
 
 # ─── Configuração ────────────────────────────────────────────────────────────

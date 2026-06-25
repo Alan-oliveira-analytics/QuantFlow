@@ -1,15 +1,12 @@
 from urllib.parse import quote_plus
 
-import requests
 import pandas as pd
 from dotenv import load_dotenv
-import pyarrow
 import os
 import logging
 from datetime import datetime
 
 from sqlalchemy import create_engine
-from config.paths import BASE_DIR
 
 from etl.extract.incremental.fred_incremental import fetch_series
 from etl.load.load_fred_incremental import get_max_date_by_series, insert_new_records

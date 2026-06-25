@@ -1,11 +1,9 @@
 import requests
-from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 import os
 import logging
 from datetime import datetime
-import pyarrow
 from config.paths import BASE_DIR
 
 
@@ -29,8 +27,6 @@ url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoi
 headers = {"x-cg-demo-api-key": api_key}
 
 
-# create a variable to store the current year, month, and day
-
 year = datetime.now().year
 month = datetime.now().strftime('%m')
 day = datetime.now().strftime('%d')
@@ -38,9 +34,8 @@ day = datetime.now().strftime('%d')
 
 # ─── Funções ────────────────────────────────────────────────────────────
 
-# Function to extract data from CoinGecko API and return a DataFrame
 
-def extract_coingecko_data(url, headers) -> pd.DataFrame:
+def extract_coingecko_data(url=url, headers=headers) -> pd.DataFrame:
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
@@ -50,11 +45,10 @@ def extract_coingecko_data(url, headers) -> pd.DataFrame:
     else:
         logger.error(f'Error: {response.status_code} - {response.text}')
         return pd.DataFrame()
-
+ 
     return df
 
 
-# Main function to orchestrate the extraction and saving of data to Parquet Files
 def main():
     df = extract_coingecko_data(url, headers)
 

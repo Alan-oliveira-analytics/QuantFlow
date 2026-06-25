@@ -1,7 +1,6 @@
 import yfinance as yf
 import pandas as pd
 import logging
-from pathlib import Path
 from config.paths import DATA_DIR
 
 

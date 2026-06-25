@@ -3,7 +3,6 @@ from sqlalchemy.dialects.postgresql import insert
 from urllib.parse import quote_plus
 import os
 import logging
-from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 from config.paths import BASE_DIR, DATA_DIR
@@ -46,43 +45,41 @@ def get_engine():
     )
 
 
-engine = get_engine()
-
 
 # ─── Funções ────────────────────────────────────────────────────────────
 
 def upsert_on_conflict_do_nothing(table, conn, keys, data_iter):
     data = [dict(zip(keys, row)) for row in data_iter]
     stmt = insert(table.table).values(data).on_conflict_do_nothing()
-    conn.execute(stmt)
+    result = conn.execute(stmt)
+    return result.rowcount
 
 
-def load_data(df, engine, table_name, schema='raw', if_exists='append'):
+def load_data(df, engine, table_name, schema='raw', if_exists='append', method=upsert_on_conflict_do_nothing):
 
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.replace(' ', '_')
 
-    df.to_sql(
+    inserted = df.to_sql(
         name=table_name,
         con=engine,
         if_exists=if_exists,
         index=True,
         schema=schema,
-        method=upsert_on_conflict_do_nothing
+        method=method
     )
 
-    logger.info('Data loading completed successfully.')
-
-    df_check = pd.read_sql(f'SELECT * FROM raw.{table_name}', con=engine)
-
-    logger.info(f'Number of records in {table_name}: {len(df_check)}')
-
-
-df_yfinance = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'yfinance' / 'yfinance_data.csv')
-df_historical_data_btc = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'bitcoin' / 'bitcoin_historical_data.csv')
+    return inserted
 
 
 def main():
+
+    engine = get_engine()
+
+    df_yfinance = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'yfinance' / 'yfinance_data.csv')
+    df_historical_data_btc = pd.read_csv(BASE_DIR / 'data' / 'raw' / 'bitcoin' / 'bitcoin_historical_data.csv')
+
+
     load_data(df_yfinance, engine, 'market_data_yahoo')
     load_data(df_historical_data_btc, engine, 'market_data_historical_btc')
 

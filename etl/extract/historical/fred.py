@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 from dotenv import load_dotenv
-import pyarrow
 import os
 import logging
 from config.paths import BASE_DIR
@@ -32,39 +31,51 @@ series_id = ['FEDFUNDS', 'CPIAUCSL', 'UNRATE', 'GDPC1', 'M2SL', 'DGS10']
 
 # ─── Extração ────────────────────────────────────────────────────────────
 
-logger.info('Iniciando a extração histórica do FRED...')
 
-df = pd.DataFrame()
+def extract_historical_data():
 
-for id in series_id:
+    logger.info('Iniciando a extração histórica do FRED...')
 
-    logger.info(f'[{id}] Buscando observações...')
+    df = pd.DataFrame()
 
-    params = {
-        'api_key': f'{API_KEY}',
-        'file_type': 'json',
-        'series_id': id}
+    for id in series_id:
 
-    response = requests.get(
-        f'{BASE_URL}{ENDPOINT}',
-        params=params
-    )
+        logger.info(f'[{id}] Buscando observações...')
 
-    observations = response.json()['observations']
+        params = {
+            'api_key': f'{API_KEY}',
+            'file_type': 'json',
+            'series_id': id}
 
-    series_df = pd.DataFrame(observations)
-    series_df['series'] = id
+        response = requests.get(
+            f'{BASE_URL}{ENDPOINT}',
+            params=params
+        )
 
-    df = pd.concat([df, series_df], ignore_index=True)
+        observations = response.json()['observations']
 
-    logger.info(f'[{id}] {len(series_df)} observações coletadas.')
+        series_df = pd.DataFrame(observations)
+        series_df['series'] = id
+
+        df = pd.concat([df, series_df], ignore_index=True)
+
+        logger.info(f'[{id}] {len(series_df)} observações coletadas.')
+
+    return df
 
 
 # ─── Persistência ────────────────────────────────────────────────────────────
 
-folder_path = file_path.parent
-folder_path.mkdir(parents=True, exist_ok=True)
+def main(df):
 
-df.to_parquet(file_path, index=False, engine='pyarrow')
+    folder_path = file_path.parent
+    folder_path.mkdir(parents=True, exist_ok=True)
 
-logger.info(f'Dados salvos em {file_path} ({len(df)} registros).')
+    df.to_parquet(file_path, index=False, engine='pyarrow')
+
+    logger.info(f'Dados salvos em {file_path} ({len(df)} registros).')
+
+
+if __name__ == '__main__':
+    df = extract_historical_data()
+    main(df)

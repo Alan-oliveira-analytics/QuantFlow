@@ -1,17 +1,8 @@
-from urllib.parse import quote_plus
-from etl.load.load import load_data, engine
-
-import requests
 import pandas as pd
 from dotenv import load_dotenv
-import pyarrow
-import os
 import logging
-from datetime import datetime
 
 from sqlalchemy import Engine, text
-
-from config.paths import BASE_DIR
 
 
 
