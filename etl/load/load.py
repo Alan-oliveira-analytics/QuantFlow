@@ -1,9 +1,8 @@
-from sqlalchemy.dialects.postgresql import insert
 import logging
 import pandas as pd
 from config.paths import BASE_DIR, DATA_DIR
 from config.db import get_engine
-
+from etl.load.utility import upsert_on_conflict_do_nothing
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
@@ -24,14 +23,9 @@ logger = logging.getLogger(__name__)
 
 # ─── Funções ────────────────────────────────────────────────────────────
 
-def upsert_on_conflict_do_nothing(table, conn, keys, data_iter):
-    data = [dict(zip(keys, row)) for row in data_iter]
-    stmt = insert(table.table).values(data).on_conflict_do_nothing()
-    result = conn.execute(stmt)
-    return result.rowcount
 
 
-def load_data(df, engine, table_name, schema='raw', if_exists='append', method=upsert_on_conflict_do_nothing):
+def load_data(df, engine, table_name, schema='raw', if_exists='append'):
 
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.replace(' ', '_')
@@ -40,9 +34,9 @@ def load_data(df, engine, table_name, schema='raw', if_exists='append', method=u
         name=table_name,
         con=engine,
         if_exists=if_exists,
-        index=True,
+        index=False,
         schema=schema,
-        method=method
+        method=upsert_on_conflict_do_nothing
     )
 
     return inserted

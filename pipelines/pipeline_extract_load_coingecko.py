@@ -4,7 +4,7 @@ import pandas as pd
 from config.db import get_engine
 
 from etl.extract.incremental.coingecko import extract_coingecko_data
-from etl.load.load import upsert_on_conflict_do_nothing, load_data
+from etl.load.load import load_data
 
 
 
@@ -39,7 +39,7 @@ def run():
 
     engine = get_engine()
 
-    inserted = load_data(df, engine, 'market_cryptos', method=upsert_on_conflict_do_nothing)
+    inserted = load_data(df, engine, 'market_cryptos')
 
     logger.info(f'{inserted} new records inserted.')
 

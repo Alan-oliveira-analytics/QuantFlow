@@ -3,8 +3,9 @@ import logging
 from datetime import datetime
 
 from config.db import get_engine
+from config.settings import HISTORICAL_FALLBACK
 
-from etl.extract.incremental.fred_incremental import fetch_series
+from etl.extract.incremental.fred_incremental import fetch_series, _build_session
 from etl.load.load_fred_incremental import get_max_date_by_series, insert_new_records
 
 # ─── Configuração ────────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ SERIES_CONFIG = {
     'DGS10':    {'frequency': 'daily',     'description': '10Y Treasury Yield'},
 }
 
-HISTORICAL_FALLBACK = '2018-01-01'
+
 
 
 
@@ -37,9 +38,11 @@ def get_observation_start(series:str, max_dates:dict) -> str:
 
     max_date = max_dates.get(series)
 
-    if max_date is None:
+     
+    if pd.isna(max_date):
         logger.warning(f'[{series}] Série não encontrada no banco. Usando fallback: {HISTORICAL_FALLBACK}')
         return HISTORICAL_FALLBACK
+
     
     max_date = pd.to_datetime(max_date)
     return (max_date + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
@@ -51,6 +54,7 @@ def run():
     Executa a carga incremental para todas as séries configuradas.
     Cada série avança a partir do seu próprio max_date.
     """
+    session = _build_session()
 
     engine = get_engine()
 
@@ -71,7 +75,7 @@ def run():
         logger.info(f'[{series_id}] Buscando a partir de {observation_start} ({meta["frequency"]})...')
 
 
-        df_new = fetch_series(series_id, observation_start)
+        df_new = fetch_series(series_id, observation_start, session)
         records_inserted = insert_new_records(df_new, engine)
 
 

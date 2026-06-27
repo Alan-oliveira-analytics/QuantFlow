@@ -27,7 +27,7 @@ day = datetime.now().strftime('%d')
 # ─── Funções ────────────────────────────────────────────────────────────
 
 
-def extract_coingecko_data(url=url,) -> pd.DataFrame:
+def extract_coingecko_data(url=url) -> pd.DataFrame:
 
     load_dotenv(ENV_PATH)
 
