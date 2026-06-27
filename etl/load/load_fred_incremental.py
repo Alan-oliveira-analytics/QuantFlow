@@ -1,5 +1,4 @@
 import pandas as pd
-from dotenv import load_dotenv
 import logging
 
 from sqlalchemy import Engine, text
@@ -7,7 +6,6 @@ from sqlalchemy import Engine, text
 
 
 # ─── Configuração ────────────────────────────────────────────────────────────
-load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,

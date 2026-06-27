@@ -2,7 +2,8 @@ import requests
 import pandas as pd
 import os
 import logging
-
+from dotenv import load_dotenv
+from config.paths import ENV_PATH
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
@@ -12,9 +13,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
 )
 logger = logging.getLogger(__name__)
-
-
-API_KEY = os.getenv('API_KEY_FRED')
 
 BASE_URL = 'https://api.stlouisfed.org/fred/'
 
@@ -29,6 +27,10 @@ def fetch_series(series_id, observation_start:str) -> pd.DataFrame:
     Busca novas observações de uma série FRED a partir de uma data.
     Retorna DataFrame vazio se não houver dados novos.
     """
+
+    load_dotenv(ENV_PATH)
+
+    API_KEY = os.getenv('API_KEY_FRED')
 
     observation_end = pd.to_datetime('today').strftime('%Y-%m-%d')
 

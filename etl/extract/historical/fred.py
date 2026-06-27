@@ -3,12 +3,10 @@ import pandas as pd
 from dotenv import load_dotenv
 import os
 import logging
-from config.paths import BASE_DIR
+from config.paths import BASE_DIR, ENV_PATH
 
 
 # ─── Configuração ────────────────────────────────────────────────────────────
-
-load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -17,8 +15,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-API_KEY = os.getenv('API_KEY_FRED')
 
 BASE_URL = 'https://api.stlouisfed.org/fred/'
 
@@ -33,6 +29,11 @@ series_id = ['FEDFUNDS', 'CPIAUCSL', 'UNRATE', 'GDPC1', 'M2SL', 'DGS10']
 
 
 def extract_historical_data():
+
+    load_dotenv(ENV_PATH)
+
+    API_KEY = os.getenv('API_KEY_FRED')
+
 
     logger.info('Iniciando a extração histórica do FRED...')
 

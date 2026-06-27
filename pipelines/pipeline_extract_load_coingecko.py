@@ -1,12 +1,12 @@
 import logging
 
 import pandas as pd
-
-from dotenv import load_dotenv
-from config.paths import BASE_DIR
+from config.db import get_engine
 
 from etl.extract.incremental.coingecko import extract_coingecko_data
-from etl.load.load import upsert_on_conflict_do_nothing, load_data, get_engine
+from etl.load.load import upsert_on_conflict_do_nothing, load_data
+
+
 
 
 
@@ -14,11 +14,6 @@ from etl.load.load import upsert_on_conflict_do_nothing, load_data, get_engine
 
 pd.set_option('display.max_columns', None)
 
-
-env_path = BASE_DIR / '.env'
-
-
-load_dotenv(env_path)
 
 logging.basicConfig(
     level=logging.INFO,

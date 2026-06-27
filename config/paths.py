@@ -10,6 +10,7 @@ def find_project_root() -> Path:
 
 # config/paths.py
 BASE_DIR = find_project_root()
-DATA_DIR  = BASE_DIR / "data"
-DB_DIR    = BASE_DIR / "database"
-DOCS_DIR  = BASE_DIR / "docs"
+DATA_DIR  = BASE_DIR / 'data'
+DB_DIR    = BASE_DIR / 'database'
+DOCS_DIR  = BASE_DIR / 'docs'
+ENV_PATH = BASE_DIR / '.env'

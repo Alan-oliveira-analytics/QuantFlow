@@ -1,11 +1,8 @@
-from sqlalchemy import create_engine
 from sqlalchemy.dialects.postgresql import insert
-from urllib.parse import quote_plus
-import os
 import logging
 import pandas as pd
-from dotenv import load_dotenv
 from config.paths import BASE_DIR, DATA_DIR
+from config.db import get_engine
 
 
 # ─── Configuração ────────────────────────────────────────────────────────────
@@ -14,10 +11,7 @@ pd.set_option('display.max_columns', None)
 
 
 base_btc_path = DATA_DIR / 'raw' / 'bitcoin'
-env_path = BASE_DIR / '.env'
 
-
-load_dotenv(env_path)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,24 +19,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
 )
 logger = logging.getLogger(__name__)
-
-
-# ─── Conexão com banco ────────────────────────────────────────────────────────────
-
-user = os.getenv('POSTGRES_USER')
-password = os.getenv('POSTGRES_PASSWORD')
-database = os.getenv('POSTGRES_DB')
-
-host = 'localhost'
-
-
-def get_engine():
-
-    logger.info('Creating database engine...')
-
-    return create_engine(
-        f'postgresql+psycopg2://{user}:{quote_plus(password)}@{host}:5433/{database}'
-    )
 
 
 

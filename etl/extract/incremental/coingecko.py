@@ -4,14 +4,10 @@ from dotenv import load_dotenv
 import os
 import logging
 from datetime import datetime
-from config.paths import BASE_DIR
+from config.paths import BASE_DIR, ENV_PATH
 
 
 # ─── Configuração ────────────────────────────────────────────────────────────
-
-env_path = BASE_DIR / '.env'
-
-load_dotenv(env_path)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,11 +16,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-api_key = os.getenv('API_KEY')
-
 url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&names=Bitcoin&symbols=btc&category=layer-1&price_change_percentage=1h"
-
-headers = {"x-cg-demo-api-key": api_key}
 
 
 year = datetime.now().year
@@ -35,7 +27,14 @@ day = datetime.now().strftime('%d')
 # ─── Funções ────────────────────────────────────────────────────────────
 
 
-def extract_coingecko_data(url=url, headers=headers) -> pd.DataFrame:
+def extract_coingecko_data(url=url,) -> pd.DataFrame:
+
+    load_dotenv(ENV_PATH)
+
+    api_key = os.getenv('API_KEY')
+    headers = {"x-cg-demo-api-key": api_key}
+
+
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
@@ -50,7 +49,7 @@ def extract_coingecko_data(url=url, headers=headers) -> pd.DataFrame:
 
 
 def main():
-    df = extract_coingecko_data(url, headers)
+    df = extract_coingecko_data(url)
 
     if df.empty:
         logger.warning('No data extracted.')
@@ -79,6 +78,8 @@ def main():
     final_df.to_parquet(file_path, index=False, engine='pyarrow')
 
     logger.info(f'Data extracted and saved to {file_path}')
+
+
 
 
 if __name__ == '__main__':

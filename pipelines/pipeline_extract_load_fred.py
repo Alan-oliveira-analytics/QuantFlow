@@ -1,19 +1,14 @@
-from urllib.parse import quote_plus
-
 import pandas as pd
-from dotenv import load_dotenv
-import os
 import logging
 from datetime import datetime
 
-from sqlalchemy import create_engine
+from config.db import get_engine
 
 from etl.extract.incremental.fred_incremental import fetch_series
 from etl.load.load_fred_incremental import get_max_date_by_series, insert_new_records
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
-load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,16 +29,6 @@ SERIES_CONFIG = {
 
 HISTORICAL_FALLBACK = '2018-01-01'
 
-
-# ─── Conexão com banco ────────────────────────────────────────────────────────────
-
-user = os.getenv('POSTGRES_USER')
-password = os.getenv('POSTGRES_PASSWORD')
-database = os.getenv('POSTGRES_DB')
-host = 'localhost'
-table_name = 'raw.market_data_historical_fred'
-
-engine = create_engine(f'postgresql+psycopg2://{user}:{quote_plus(password)}@{host}:5433/{database}')
 
 
 # ─── Funções ────────────────────────────────────────────────────────────
@@ -66,6 +51,9 @@ def run():
     Executa a carga incremental para todas as séries configuradas.
     Cada série avança a partir do seu próprio max_date.
     """
+
+    engine = get_engine()
+
 
     logger.info('Iniciando a carga incremental do FRED...')
     
