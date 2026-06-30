@@ -2,6 +2,7 @@ import logging
 
 import pandas as pd
 from config.db import get_engine
+from config.logging import setup_logging
 
 from etl.extract.incremental.coingecko import extract_coingecko_data
 from etl.load.load import load_data
@@ -15,11 +16,6 @@ from etl.load.load import load_data
 pd.set_option('display.max_columns', None)
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 def run():
+
+    setup_logging()
 
     logger.info('Starting Coingecko data snapshot')
 

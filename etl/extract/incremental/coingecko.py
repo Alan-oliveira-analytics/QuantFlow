@@ -4,16 +4,14 @@ from dotenv import load_dotenv
 import os
 import logging
 from datetime import datetime
+
+from config.logging import setup_logging
 from config.paths import BASE_DIR, ENV_PATH
 
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
+
 logger = logging.getLogger(__name__)
 
 url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&names=Bitcoin&symbols=btc&category=layer-1&price_change_percentage=1h"
@@ -49,6 +47,9 @@ def extract_coingecko_data(url=url) -> pd.DataFrame:
 
 
 def main():
+
+    setup_logging()
+
     df = extract_coingecko_data(url)
 
     if df.empty:

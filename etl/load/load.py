@@ -1,7 +1,10 @@
 import logging
 import pandas as pd
+
 from config.paths import BASE_DIR, DATA_DIR
 from config.db import get_engine
+from config.logging import setup_logging
+
 from etl.load.utility import upsert_on_conflict_do_nothing
 
 # ─── Configuração ────────────────────────────────────────────────────────────
@@ -12,11 +15,6 @@ pd.set_option('display.max_columns', None)
 base_btc_path = DATA_DIR / 'raw' / 'bitcoin'
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
 logger = logging.getLogger(__name__)
 
 
@@ -43,6 +41,8 @@ def load_data(df, engine, table_name, schema='raw', if_exists='append'):
 
 
 def main():
+
+    setup_logging()
 
     engine = get_engine()
 

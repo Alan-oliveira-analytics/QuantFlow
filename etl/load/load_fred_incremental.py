@@ -8,12 +8,6 @@ from etl.load.utility import upsert_on_conflict_do_nothing
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
-
 logger = logging.getLogger(__name__)
 
 TABLE_NAME = 'market_data_historical_fred'

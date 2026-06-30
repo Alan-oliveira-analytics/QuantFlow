@@ -3,16 +3,13 @@ import pandas as pd
 from dotenv import load_dotenv
 import os
 import logging
+
+from config.logging import setup_logging
 from config.paths import BASE_DIR, ENV_PATH
 
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
 logger = logging.getLogger(__name__)
 
 
@@ -68,6 +65,8 @@ def extract_historical_data():
 # ─── Persistência ────────────────────────────────────────────────────────────
 
 def main(df):
+
+    setup_logging()
 
     folder_path = file_path.parent
     folder_path.mkdir(parents=True, exist_ok=True)

@@ -9,11 +9,7 @@ from urllib3.util.retry import Retry
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
+
 logger = logging.getLogger(__name__)
 
 BASE_URL = 'https://api.stlouisfed.org/fred/'
@@ -64,23 +60,21 @@ def fetch_series(series_id, observation_start:str, session) -> pd.DataFrame:
     except requests.exceptions.RequestException as e:
         msg = str(e).replace(API_KEY, '*****') if API_KEY else str(e)
         logger.error(f'[{series_id}] Erro na requisição: {msg}')
-        return pd.DataFrame()
+        return 'error', pd.DataFrame()
 
 
-    observations = response.json().get('observations', [])
-
-    if not observations:
-        logger.info(f'[{series_id}] Nenhum dado novo desde {observation_start}.')
-        return pd.DataFrame()
+    observations = response.json().get('observations', [])    
     
     new_df = pd.DataFrame(observations)
     new_df['series'] = series_id
 
     # Garante que só entram datas estritamente posteriores ao max_date do banco
     new_df['date'] = pd.to_datetime(new_df['date'])
-    new_df = new_df[new_df['date'] >= pd.to_datetime(observation_start)]
+    new_df = new_df[new_df['date'] > pd.to_datetime(observation_start)]
 
+    if new_df.empty:
+        logger.info(f'[{series_id}] Nenhum dado novo desde {observation_start}.')
+        return 'no_data', pd.DataFrame()
 
-
-    return new_df
+    return 'success', new_df
 

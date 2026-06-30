@@ -4,6 +4,7 @@ from datetime import datetime
 
 from config.db import get_engine
 from config.settings import HISTORICAL_FALLBACK
+from config.logging import setup_logging
 
 from etl.extract.incremental.fred_incremental import fetch_series, _build_session
 from etl.load.load_fred_incremental import get_max_date_by_series, insert_new_records
@@ -11,11 +12,7 @@ from etl.load.load_fred_incremental import get_max_date_by_series, insert_new_re
 # ─── Configuração ────────────────────────────────────────────────────────────
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
+
 logger = logging.getLogger(__name__)
 
 
@@ -54,6 +51,9 @@ def run():
     Executa a carga incremental para todas as séries configuradas.
     Cada série avança a partir do seu próprio max_date.
     """
+
+    setup_logging()
+
     session = _build_session()
 
     engine = get_engine()
@@ -75,7 +75,7 @@ def run():
         logger.info(f'[{series_id}] Buscando a partir de {observation_start} ({meta["frequency"]})...')
 
 
-        df_new = fetch_series(series_id, observation_start, session)
+        status, df_new = fetch_series(series_id, observation_start, session)
         records_inserted = insert_new_records(df_new, engine)
 
 
@@ -86,7 +86,7 @@ def run():
             'observation_start': observation_start,
             'records_inserted':  records_inserted,
             'run_at':            datetime.now().isoformat(),
-            'status':            'success' if records_inserted >= 0 else 'error',
+            'status':            status
         })
 
 

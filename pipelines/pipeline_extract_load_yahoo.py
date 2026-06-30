@@ -4,18 +4,13 @@ from datetime import datetime
 
 from config.db import get_engine
 from config.settings import HISTORICAL_FALLBACK
+from config.logging import setup_logging
 
 from etl.extract.incremental.yahoo import extract_yfinance_data
 from etl.load.load_yahoo_incremental import get_max_date, insert_new_records
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +22,8 @@ def run():
     """
     Executa a carga incremental a partir do max_date.
     """
+
+    setup_logging()
 
     engine = get_engine()
 

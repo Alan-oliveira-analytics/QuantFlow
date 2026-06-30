@@ -1,16 +1,13 @@
 import yfinance as yf
 import pandas as pd
 import logging
+
+from config.logging import setup_logging
 from config.paths import DATA_DIR
 
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-)
 logger = logging.getLogger(__name__)
 
 
@@ -38,6 +35,9 @@ def extract_yfinance_data(assets, df, period='5y'):
 
 
 def main(df):
+
+
+    setup_logging()
 
     folder_path = output_path.parent
     folder_path.mkdir(parents=True, exist_ok=True)
